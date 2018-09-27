@@ -3,7 +3,7 @@ import bs4
 import pandas as pd
 from selenium import webdriver
 
-PATH = os.path.join('/','Users','benmorris','documents','testdir')
+PATH = os.path.join('/','Users','?????','documents','testdir') # change home name to your own
 
 def table_to_df(table):
 	return pd.DataFrame([[td.text for td in row.find_all('td')] for row in soup.find_all('tr')])
