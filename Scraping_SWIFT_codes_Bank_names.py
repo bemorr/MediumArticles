@@ -1,12 +1,12 @@
 import os
 import bs4
-import requests
 import pandas as pd
+from selenium import webdriver
 
-PATH = os.path.join("C:\\","Users","frevert","Documents","py")
+PATH = os.path.join('/','Users','?????','documents','testdir') # change home name to your own
 
 def table_to_df(table):
-	return pd.DataFrame([[td.text for td in row.findAll('td')] for row in table.tbody.findAll('tr')])
+	return pd.DataFrame([[td.text for td in row.find_all('td')] for row in soup.find_all('tr')])
 
 def next_page(soup):
 	return "http:" + soup.find('a', attrs={'rel':'next'}).get('href')
@@ -14,13 +14,19 @@ def next_page(soup):
 res = pd.DataFrame()
 url = "http://bank-code.net/country/FRANCE-%28FR%29/"
 counter = 0
+driver = webdriver.Chrome()
+driver.get(url)
 
 while True:
-	print(counter)
-	page = requests.get(url)
-	soup = bs4.BeautifulSoup(page.content, 'lxml')
-	table = soup.find(name='table', attrs={'id':'tableID'})
-	res = res.append(table_to_df(table))
-	res.to_csv(os.path.join(PATH,"BIC","table.csv"), index=None, sep=';', encoding='iso-8859-1')
-	url = next_page(soup)
-	counter += 1
+    print(counter)
+    page = driver.get(url)
+    soup = bs4.BeautifulSoup(driver.page_source, 'lxml')
+    table = driver.find_element_by_xpath('//*[@id="tableID"]')
+    if table is None:
+        print("no table 'tableID' found for url {}".format(url))
+        print("html content:\n{}\n".format( page.content))
+        continue
+    res = res.append(table_to_df(table))
+    res.to_csv(os.path.join(PATH,"BIC","table.csv"), index=False, sep=',', encoding='iso-8859-1')
+    url = next_page(soup)
+    counter += 1
